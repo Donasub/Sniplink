@@ -1,0 +1,691 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c27;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --accent: #6c63ff;
+    --accent2: #a78bfa;
+    --text: #f0eeff;
+    --muted: #8884aa;
+    --success: #22d3a0;
+    --danger: #ff6b6b;
+    --mono: 'DM Mono', monospace;
+    --head: 'Syne', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .app {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 0.5rem;
+  }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  h1 {
+    font-family: var(--head);
+    font-size: 1.9rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text);
+  }
+
+  .tagline {
+    font-size: 0.82rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    margin-top: 4px;
+  }
+
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+    gap: 4px;
+    margin-bottom: 1.5rem;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .input-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .input-wrap {
+    flex: 1;
+    position: relative;
+  }
+
+  .url-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .url-input:focus { border-color: var(--accent); }
+  .url-input::placeholder { color: var(--muted); }
+
+  .btn {
+    padding: 12px 20px;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    letter-spacing: 0.03em;
+  }
+
+  .btn:hover { background: #7c74ff; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    font-size: 0.78rem;
+    padding: 8px 14px;
+  }
+
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); border-color: var(--accent); }
+
+  .result-box {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-url {
+    flex: 1;
+    font-size: 0.88rem;
+    color: var(--accent2);
+    word-break: break-all;
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: var(--mono);
+    white-space: nowrap;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .copy-btn:hover { color: var(--success); border-color: var(--success); }
+  .copy-btn.copied { color: var(--success); border-color: var(--success); }
+
+  .section-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .history-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.15s;
+    cursor: default;
+  }
+
+  .history-item:hover { border-color: var(--border2); }
+
+  .history-item-content { flex: 1; min-width: 0; }
+
+  .history-short {
+    font-size: 0.84rem;
+    color: var(--accent2);
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  .history-long {
+    font-size: 0.73rem;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .history-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .icon-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    transition: all 0.15s;
+  }
+
+  .icon-btn:hover { color: var(--text); background: var(--border); }
+  .icon-btn.del:hover { color: var(--danger); }
+
+  .qr-area {
+    text-align: center;
+  }
+
+  #qr-canvas {
+    background: #fff;
+    border-radius: 12px;
+    display: inline-block;
+    padding: 16px;
+    margin: 1rem auto;
+  }
+
+  .qr-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .stat-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: var(--head);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--success);
+    color: #062b1e;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+    z-index: 999;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .error-msg {
+    color: var(--danger);
+    font-size: 0.78rem;
+    margin-top: 6px;
+    margin-bottom: 0.5rem;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(108,99,255,0.15);
+    color: var(--accent2);
+    border: 1px solid rgba(108,99,255,0.3);
+    border-radius: 5px;
+    font-size: 0.68rem;
+    padding: 2px 7px;
+    letter-spacing: 0.05em;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1rem 0;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">🔗</div>
+      <h1>sniplink</h1>
+    </div>
+    <p class="tagline">url shortener + qr code generator · free for everyone</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('shorten')" id="tab-shorten">✂️ Shorten URL</button>
+    <button class="tab" onclick="switchTab('qr')" id="tab-qr">◼ QR Code</button>
+    <button class="tab" onclick="switchTab('history')" id="tab-history">📋 History</button>
+  </div>
+
+  <!-- SHORTEN TAB -->
+  <div id="pane-shorten">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-label">links</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-today">0</div>
+        <div class="stat-label">today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-clicks">0</div>
+        <div class="stat-label">clicks</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="section-label">paste your long url</p>
+      <div class="input-group">
+        <div class="input-wrap">
+          <input type="text" class="url-input" id="long-url" placeholder="https://your-very-long-url.com/with/a/long/path" />
+        </div>
+        <button class="btn" onclick="shortenURL()">Shorten →</button>
+      </div>
+      <div id="url-error" class="error-msg" style="display:none;"></div>
+
+      <div id="short-result" style="display:none;">
+        <div class="result-box">
+          <span class="result-url" id="result-short-url"></span>
+          <button class="copy-btn" id="copy-main-btn" onclick="copyURL('result-short-url', 'copy-main-btn')">copy</button>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-ghost" onclick="makeQRFromShort()">📷 Generate QR</button>
+          <button class="btn btn-ghost" onclick="simulateClick()">Simulate click</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="section-label">recent links</p>
+      <div id="recent-links">
+        <div class="empty-state">no links yet — shorten your first url above</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR TAB -->
+  <div id="pane-qr" style="display:none;">
+    <div class="card">
+      <p class="section-label">enter url for qr code</p>
+      <div class="input-group">
+        <input type="text" class="url-input" id="qr-url-input" placeholder="https://... or paste a sniplink short url" />
+        <button class="btn" onclick="generateQR()">Generate</button>
+      </div>
+      <div id="qr-error" class="error-msg" style="display:none;"></div>
+
+      <div id="qr-result" style="display:none;" class="qr-area">
+        <div class="divider"></div>
+        <p class="section-label" style="text-align:center;" id="qr-label-text"></p>
+        <div id="qr-canvas"></div>
+        <div class="qr-actions">
+          <button class="btn" onclick="downloadQR()">⬇ Download PNG</button>
+          <button class="btn btn-ghost" onclick="copyQRImage()">Copy image</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="background: rgba(108,99,255,0.04); border-color: rgba(108,99,255,0.2);">
+      <p class="section-label">quick tip</p>
+      <p style="font-size:0.8rem; color: var(--muted); line-height: 1.7;">
+        Generate a QR code for any shortened link or full URL.
+        Works great for flyers, presentations, print materials,
+        and event check-ins. Download as PNG and use anywhere.
+      </p>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div id="pane-history" style="display:none;">
+    <div class="card" style="margin-bottom:1rem;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+        <p class="section-label" style="margin:0;">all shortened links</p>
+        <button class="btn btn-ghost" onclick="clearHistory()" style="font-size:0.75rem;">Clear all</button>
+      </div>
+      <div id="full-history">
+        <div class="empty-state">no links yet</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let links = [];
+  let currentQR = null;
+  const BASE = 'snip.link/';
+
+  function genCode(len = 6) {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    return Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  }
+
+  function isValidURL(s) {
+    try { new URL(s); return true; } catch { return false; }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function switchTab(name) {
+    ['shorten','qr','history'].forEach(n => {
+      document.getElementById('pane-' + n).style.display = n === name ? 'block' : 'none';
+      document.getElementById('tab-' + n).classList.toggle('active', n === name);
+    });
+    if (name === 'history') renderHistory();
+  }
+
+  function shortenURL() {
+    const input = document.getElementById('long-url').value.trim();
+    const errEl = document.getElementById('url-error');
+    errEl.style.display = 'none';
+
+    if (!input) { errEl.textContent = 'please enter a url'; errEl.style.display = 'block'; return; }
+
+    let url = input;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+    if (!isValidURL(url)) { errEl.textContent = 'that doesn\'t look like a valid url'; errEl.style.display = 'block'; return; }
+
+    const existing = links.find(l => l.long === url);
+    const code = existing ? existing.code : genCode();
+
+    if (!existing) {
+      links.unshift({ code, long: url, short: BASE + code, created: Date.now(), clicks: 0 });
+    }
+
+    const shortFull = BASE + code;
+    document.getElementById('result-short-url').textContent = shortFull;
+    document.getElementById('short-result').style.display = 'block';
+
+    updateStats();
+    renderRecentLinks();
+    showToast(existing ? 'link already exists — showing it' : '✓ link shortened!');
+  }
+
+  function simulateClick() {
+    const shortEl = document.getElementById('result-short-url').textContent;
+    const code = shortEl.replace(BASE, '');
+    const link = links.find(l => l.code === code);
+    if (link) { link.clicks++; updateStats(); renderRecentLinks(); showToast('click registered!'); }
+  }
+
+  function copyURL(elId, btnId) {
+    const text = document.getElementById(elId).textContent;
+    navigator.clipboard.writeText(text).catch(() => {});
+    const btn = document.getElementById(btnId);
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1500);
+    showToast('copied to clipboard!');
+  }
+
+  function copyText(text) {
+    navigator.clipboard.writeText(text).catch(() => {});
+    showToast('copied!');
+  }
+
+  function updateStats() {
+    document.getElementById('stat-total').textContent = links.length;
+    const today = Date.now() - 86400000;
+    document.getElementById('stat-today').textContent = links.filter(l => l.created > today).length;
+    document.getElementById('stat-clicks').textContent = links.reduce((a, l) => a + l.clicks, 0);
+  }
+
+  function renderRecentLinks() {
+    const el = document.getElementById('recent-links');
+    const recent = links.slice(0, 5);
+    if (!recent.length) { el.innerHTML = '<div class="empty-state">no links yet</div>'; return; }
+    el.innerHTML = recent.map(l => linkHTML(l)).join('');
+  }
+
+  function linkHTML(l) {
+    return `
+      <div class="history-item">
+        <div class="history-item-content">
+          <div class="history-short">${l.short}</div>
+          <div class="history-long">${l.long}</div>
+        </div>
+        <div class="history-actions">
+          <span style="font-size:0.7rem; color: var(--muted); margin-right:2px;">${l.clicks} click${l.clicks !== 1 ? 's' : ''}</span>
+          <button class="icon-btn" onclick="copyText('${l.short}')" title="Copy">⧉</button>
+          <button class="icon-btn" onclick="makeQRForCode('${l.code}')" title="QR Code">◼</button>
+          <button class="icon-btn del" onclick="deleteLink('${l.code}')" title="Delete">✕</button>
+        </div>
+      </div>`;
+  }
+
+  function renderHistory() {
+    const el = document.getElementById('full-history');
+    if (!links.length) { el.innerHTML = '<div class="empty-state">no links yet — start shortening!</div>'; return; }
+    el.innerHTML = links.map(l => linkHTML(l)).join('');
+  }
+
+  function deleteLink(code) {
+    links = links.filter(l => l.code !== code);
+    updateStats(); renderRecentLinks(); renderHistory();
+    showToast('link deleted');
+  }
+
+  function clearHistory() {
+    if (!links.length) return;
+    links = [];
+    updateStats(); renderRecentLinks(); renderHistory();
+    showToast('history cleared');
+  }
+
+  function makeQRFromShort() {
+    const short = document.getElementById('result-short-url').textContent;
+    document.getElementById('qr-url-input').value = short;
+    switchTab('qr');
+    generateQR();
+  }
+
+  function makeQRForCode(code) {
+    const link = links.find(l => l.code === code);
+    if (!link) return;
+    document.getElementById('qr-url-input').value = link.short;
+    switchTab('qr');
+    generateQR();
+  }
+
+  function generateQR() {
+    const val = document.getElementById('qr-url-input').value.trim();
+    const errEl = document.getElementById('qr-error');
+    errEl.style.display = 'none';
+
+    if (!val) { errEl.textContent = 'please enter a url'; errEl.style.display = 'block'; return; }
+
+    let url = val;
+    if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('snip.link')) {
+      url = 'https://' + url;
+    }
+
+    const canvas = document.getElementById('qr-canvas');
+    canvas.innerHTML = '';
+
+    try {
+      currentQR = new QRCode(canvas, {
+        text: url.startsWith('snip.link') ? 'https://' + url : url,
+        width: 200,
+        height: 200,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    } catch(e) {
+      errEl.textContent = 'could not generate qr — check the url';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    document.getElementById('qr-label-text').textContent = url.length > 45 ? url.slice(0, 45) + '...' : url;
+    document.getElementById('qr-result').style.display = 'block';
+    showToast('✓ qr code generated!');
+  }
+
+  function downloadQR() {
+    const canvas = document.querySelector('#qr-canvas canvas');
+    if (!canvas) { showToast('generate a qr code first'); return; }
+    const link = document.createElement('a');
+    link.download = 'sniplink-qr.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('downloading...');
+  }
+
+  function copyQRImage() {
+    const canvas = document.querySelector('#qr-canvas canvas');
+    if (!canvas) { showToast('generate a qr code first'); return; }
+    canvas.toBlob(blob => {
+      try {
+        navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+        showToast('image copied!');
+      } catch { showToast('download instead — clipboard blocked'); }
+    });
+  }
+</script>
+</body>
+</html>
